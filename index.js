@@ -234,6 +234,13 @@ async function run() {
       const deleteResult = await selectedCollection.deleteOne(query);
       res.send({ result, deleteResult });
     });
+
+    app.get('/payments/:email', async(req,res)=>{
+      const email = req.params.email;
+      const query = {email: email}
+      const result =  await paymentCollection.find(query).toArray();
+      res.send(result)
+    })
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
