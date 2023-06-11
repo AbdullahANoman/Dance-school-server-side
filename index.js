@@ -85,7 +85,7 @@ async function run() {
       res.send(result);
     });
 
-    app.post("/student/:email", async (req, res) => {
+    app.post("/student/:email",   async (req, res) => {
       const email = req.params.email;
 
       const item = req.body;
@@ -219,6 +219,15 @@ async function run() {
       const result = await usersCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
+    // instructor page
+    app.get("/instructor/:role", async (req, res) => {
+      const instructorRole = req.params.role;
+      console.log(instructorRole)
+      const query = { role: instructorRole };
+
+      const result = await usersCollection.find(query).toArray();
+      res.send(result);
+    });
 
     // feedback
     app.get("/feedback/:id", async (req, res) => {
@@ -230,17 +239,21 @@ async function run() {
     });
     app.post("/updateFeedback/:id", async (req, res) => {
       const id = req.params.id;
-      const {feedBack} = req.body;
+      const { feedBack } = req.body;
       // console.log(newFeedBack)
       // console.log(id,feedBack)
 
-      const filter = {_id : new ObjectId(id)}
+      const filter = { _id: new ObjectId(id) };
 
       // const existing = await classesCollection.find(query);
 
-      const result = await classesCollection.updateOne(filter,{$set:{feedBack: feedBack}}, {upsert: true})
-      
-      res.send(result)
+      const result = await classesCollection.updateOne(
+        filter,
+        { $set: { feedBack: feedBack } },
+        { upsert: true }
+      );
+
+      res.send(result);
       // const query = { _id: new ObjectId(id) };
       // const existing = await classesCollection.find(query)
       // // const options = { upsert: true };
