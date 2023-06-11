@@ -56,7 +56,7 @@ async function run() {
     const selectedCollection = client
       .db("Dance-School")
       .collection("selectedClass");
-      const paymentCollection = client.db("Dance-School").collection("payments");
+    const paymentCollection = client.db("Dance-School").collection("payments");
     app.post("/jwt", (req, res) => {
       const user = req.body;
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
@@ -74,6 +74,14 @@ async function run() {
 
     app.get("/classes", async (req, res) => {
       const result = await classesCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.get("/classes/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+
+      const result = await classesCollection.find(query).toArray();
       res.send(result);
     });
 
@@ -99,6 +107,13 @@ async function run() {
       const query = { _id: new ObjectId(id) };
       const findPaymentClass = await selectedCollection.find(query).toArray();
       res.send(findPaymentClass);
+    });
+    app.get("/enrolled/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { instructorEmail: email };
+
+      const result = await paymentCollection.find(query).toArray();
+      res.send(result);
     });
     app.delete("/student/:email/:id", async (req, res) => {
       const id = req.params.id;
@@ -205,6 +220,36 @@ async function run() {
       res.send(result);
     });
 
+    // feedback
+    app.get("/feedback/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      console.log(id);
+      const result = await classesCollection.find(query).toArray();
+      res.send(result);
+    });
+    app.post("/updateFeedback/:id", async (req, res) => {
+      const id = req.params.id;
+      const {feedBack} = req.body;
+      // console.log(newFeedBack)
+      // console.log(id,feedBack)
+
+      const filter = {_id : new ObjectId(id)}
+
+      // const existing = await classesCollection.find(query);
+
+      const result = await classesCollection.updateOne(filter,{$set:{feedBack: feedBack}}, {upsert: true})
+      
+      res.send(result)
+      // const query = { _id: new ObjectId(id) };
+      // const existing = await classesCollection.find(query)
+      // // const options = { upsert: true };
+      // const doc = {
+      //   feedBack
+      // };
+      // const result = await existing.insertOne(doc)
+      // res.send(result);
+    });
     // payments
     app.post("/create-payment-intent", verifyJWT, async (req, res) => {
       const { price } = req.body;
@@ -235,12 +280,12 @@ async function run() {
       res.send({ result, deleteResult });
     });
 
-    app.get('/payments/:email', async(req,res)=>{
+    app.get("/payments/:email", async (req, res) => {
       const email = req.params.email;
-      const query = {email: email}
-      const result =  await paymentCollection.find(query).toArray();
-      res.send(result)
-    })
+      const query = { email: email };
+      const result = await paymentCollection.find(query).toArray();
+      res.send(result);
+    });
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
