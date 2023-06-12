@@ -244,7 +244,7 @@ async function run() {
      
       const filter = { _id: new ObjectId(id) };
 
-      // const existing = await classesCollection.find(query);
+  
 
       const result = await classesCollection.updateOne(
         filter,
