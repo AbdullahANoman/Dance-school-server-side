@@ -2,11 +2,11 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
-const port = process.env.PORT || 5000;
-const stripe = require("stripe")(
-  "sk_test_51NFcq3J4bdzkJ4Z5kcZidpkFmtcTLRI0LgqgyE6BQtCKYm9wK02nkxlUJ3jGNdziEx1EBQ49xKRRjEE2RKQMz6tp00fQsH7VT4"
-);
+
 require("dotenv").config();
+const stripe = require("stripe")(process.env.PAYMENT_STRIPE_KEY);
+const port = process.env.PORT || 5000;
+
 //middleware
 app.use(cors());
 app.use(express.json());
@@ -49,7 +49,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const usersCollection = client.db("Dance-School").collection("users");
     const classesCollection = client.db("Dance-School").collection("classes");
@@ -85,7 +85,7 @@ async function run() {
       res.send(result);
     });
 
-    app.post("/student/:email",   async (req, res) => {
+    app.post("/student/:email", async (req, res) => {
       const email = req.params.email;
 
       const item = req.body;
@@ -222,7 +222,7 @@ async function run() {
     // instructor page
     app.get("/instructor/:role", async (req, res) => {
       const instructorRole = req.params.role;
-      console.log(instructorRole)
+      console.log(instructorRole);
       const query = { role: instructorRole };
 
       const result = await usersCollection.find(query).toArray();
@@ -254,14 +254,26 @@ async function run() {
       );
 
       res.send(result);
-      // const query = { _id: new ObjectId(id) };
-      // const existing = await classesCollection.find(query)
-      // // const options = { upsert: true };
-      // const doc = {
-      //   feedBack
-      // };
-      // const result = await existing.insertOne(doc)
-      // res.send(result);
+    });
+
+    app.post("/enrolled/:id", async (req, res) => {
+      const id = req.params.id;
+      const {value} = req.body;
+      const filter = { _id: new ObjectId(id) };
+      console.log(value)
+      parseInt(value)
+     
+
+      const result = await classesCollection.updateOne(
+        filter,
+        {
+          $inc: { enrolled: 1 ,
+          seats : -1 },
+        },
+        { upsert: true }
+      );
+
+      res.send(result)
     });
     // payments
     app.post("/create-payment-intent", verifyJWT, async (req, res) => {
