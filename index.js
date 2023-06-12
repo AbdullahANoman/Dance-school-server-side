@@ -241,9 +241,7 @@ async function run() {
     app.post("/updateFeedback/:id", async (req, res) => {
       const id = req.params.id;
       const { feedBack } = req.body;
-      // console.log(newFeedBack)
-      // console.log(id,feedBack)
-
+     
       const filter = { _id: new ObjectId(id) };
 
       // const existing = await classesCollection.find(query);
@@ -318,7 +316,7 @@ async function run() {
       const result = await paymentCollection.find(query).toArray();
       res.send(result);
     });
-    // Send a ping to confirm a successful connection
+   
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
