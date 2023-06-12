@@ -57,6 +57,7 @@ async function run() {
       .db("Dance-School")
       .collection("selectedClass");
     const paymentCollection = client.db("Dance-School").collection("payments");
+    const instructorCollection = client.db('Dance-School').collection('instructors')
     app.post("/jwt", (req, res) => {
       const user = req.body;
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
@@ -187,7 +188,7 @@ async function run() {
     app.post("/users", async (req, res) => {
       const user = req.body;
       console.log(user);
-      const query = { email: user.email };
+      const query = { email: user?.email };
       const existingUser = await usersCollection.findOne(query);
       if (existingUser) {
         return res.send([]);
@@ -263,6 +264,7 @@ async function run() {
       console.log(value)
       parseInt(value)
      
+     
 
       const result = await classesCollection.updateOne(
         filter,
@@ -275,6 +277,11 @@ async function run() {
 
       res.send(result)
     });
+
+    app.get('/popular' , async(req,res)=>{
+      const result = await classesCollection.find().sort({enrolled: -1}).limit(6).toArray()
+      res.send(result)
+    })
     // payments
     app.post("/create-payment-intent", verifyJWT, async (req, res) => {
       const { price } = req.body;
